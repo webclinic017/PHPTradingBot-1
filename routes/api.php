@@ -19,3 +19,4 @@ use Illuminate\Http\Request;
 
 
 Route::middleware('api')->get('/positions','ApiController@positions');
+//Route::middleware('api')->get('/tickers/{symbol}/history/{fromTime}','ApiController@getTickerHistory');

@@ -25,7 +25,7 @@
                                 </td>
                             @endforeach
                             <td>
-                                <a href="{{route('showSymbol',\App\TradeHelper::market2symbol($signal->market))}}" class="btn btn-secondary">TV</a>
+                                <a href="{{route('showSymbol',\App\BithumbTradeHelper::market2symbol($signal->market))}}" class="btn btn-secondary">TV</a>
                             </td>
                         </tr>
                     @endforeach

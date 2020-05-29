@@ -39,7 +39,7 @@
                                 <div class="checkbox">
                                     <label><input type="checkbox" value="1"
                                                   @if(\App\Setting::getValue('trainingMode')) checked
-                                                  @endif name="trainingMode"> Training Mode (uses binance
+                                                  @endif name="trainingMode"> Training Mode (uses bithumb
                                         ticker but doesn't send any trade to the exchange) </label>
                                 </div>
 
@@ -157,22 +157,22 @@
                         </div>
                         <div class="row mt-5">
                             <div class="col-md-3">
-                                <h5> Binance</h5>
+                                <h5> Bithumb</h5>
                             </div>
                             <div class="col-md-9">
                                 <ul class="list-inline">
-                                    <li><input type="text" id="binance[api]" name="binance[api]"
+                                    <li><input type="text" id="bithumb[api]" name="bithumb[api]"
                                                class="form-control input-sm"
-                                               placeholder="{{$binanceConfig['api'] ? 'api key is saved leave blank if you don\' want to change it.' : 'enter your binance api key'}}">
+                                               placeholder="{{$bithumbConfig['api'] ? 'api key is saved leave blank if you don\' want to change it.' : 'enter your bithumb api key'}}">
                                     </li>
-                                    <li>Binance api key</li>
+                                    <li>Bithumb api key</li>
                                 </ul>
                                 <ul class="list-inline">
-                                    <li><input type="text" id="binance[secret]" name="binance[secret]"
+                                    <li><input type="text" id="bithumb[secret]" name="bithumb[secret]"
                                                class="form-control input-sm"
-                                               placeholder="{{$binanceConfig['secret'] ? 'api secret is saved leave blank if you don\' want to change it.' : 'enter your binance api secret'}}">
+                                               placeholder="{{$bithumbConfig['secret'] ? 'api secret is saved leave blank if you don\' want to change it.' : 'enter your bithumb api secret'}}">
                                     </li>
-                                    <li>Binance api Secret</li>
+                                    <li>Bithumb api Secret</li>
                                 </ul>
                             </div>
                         </div>
@@ -182,72 +182,72 @@
                             {{--</div>--}}
                             {{--<div class="col-md-9">--}}
                                 {{--<ul class="list-inline">--}}
-                                    {{--<li><input type="checkbox" id="binance[proxyEnabled]" name="binance[proxyEnabled]"--}}
+                                    {{--<li><input type="checkbox" id="bithumb[proxyEnabled]" name="bithumb[proxyEnabled]"--}}
                                                {{--class=""--}}
                                                {{--value="1" onclick="toggleProxy();"--}}
-                                               {{--@if(isset($binanceConfig['proxyEnabled']) && $binanceConfig['proxyEnabled']) checked @endif>--}}
-                                        {{--<label for="binance[proxyEnabled]">--}}
+                                               {{--@if(isset($bithumbConfig['proxyEnabled']) && $bithumbConfig['proxyEnabled']) checked @endif>--}}
+                                        {{--<label for="bithumb[proxyEnabled]">--}}
                                             {{--Enable--}}
                                         {{--</label>--}}
                                     {{--</li>--}}
                                     {{--<li>not compatible with Web Socket ticker</li>--}}
                                 {{--</ul>--}}
                                 {{--<ul class="list-inline" id="proxy"--}}
-                                    {{--@if(!isset($binanceConfig['proxyEnabled']) || $binanceConfig['proxyEnabled'] == false) style="display: none;" @endif>--}}
+                                    {{--@if(!isset($bithumbConfig['proxyEnabled']) || $bithumbConfig['proxyEnabled'] == false) style="display: none;" @endif>--}}
                                     {{--<li>--}}
-                                        {{--<label for="binance[proxy][proto]">--}}
+                                        {{--<label for="bithumb[proxy][proto]">--}}
                                             {{--Protocol--}}
                                         {{--</label>--}}
-                                        {{--<select type="text" id="binance[proxy][proto]" name="binance[proxy][proto]"--}}
+                                        {{--<select type="text" id="bithumb[proxy][proto]" name="bithumb[proxy][proto]"--}}
                                                 {{--class="form-control col-md-2 input-sm">--}}
-                                            {{--<option @if(!isset($binanceConfig['proxy']['proto']) || $binanceConfig['proxy']['proto'] == 'http') selected @endif>--}}
+                                            {{--<option @if(!isset($bithumbConfig['proxy']['proto']) || $bithumbConfig['proxy']['proto'] == 'http') selected @endif>--}}
                                                 {{--http--}}
                                             {{--</option>--}}
-                                            {{--<option @if(!isset($binanceConfig['proxy']['proto']) || $binanceConfig['proxy']['proto'] == 'https') selected @endif>--}}
+                                            {{--<option @if(!isset($bithumbConfig['proxy']['proto']) || $bithumbConfig['proxy']['proto'] == 'https') selected @endif>--}}
                                                 {{--https--}}
                                             {{--</option>--}}
-                                            {{--<option @if(!isset($binanceConfig['proxy']['proto']) || $binanceConfig['proxy']['proto'] == 'socks4') selected @endif>--}}
+                                            {{--<option @if(!isset($bithumbConfig['proxy']['proto']) || $bithumbConfig['proxy']['proto'] == 'socks4') selected @endif>--}}
                                                 {{--socks4--}}
                                             {{--</option>--}}
-                                            {{--<option @if(!isset($binanceConfig['proxy']['proto']) || $binanceConfig['proxy']['proto'] == 'socks5') selected @endif>--}}
+                                            {{--<option @if(!isset($bithumbConfig['proxy']['proto']) || $bithumbConfig['proxy']['proto'] == 'socks5') selected @endif>--}}
                                                 {{--socks5--}}
                                             {{--</option>--}}
-                                            {{--<option @if(!isset($binanceConfig['proxy']['proto']) || $binanceConfig['proxy']['proto'] == 'socks5h') selected @endif>--}}
+                                            {{--<option @if(!isset($bithumbConfig['proxy']['proto']) || $bithumbConfig['proxy']['proto'] == 'socks5h') selected @endif>--}}
                                                 {{--socks5h--}}
                                             {{--</option>--}}
                                         {{--</select>--}}
                                     {{--</li>--}}
                                     {{--<li class="mt-3">--}}
-                                        {{--<label for="binance[proxy][host]">--}}
+                                        {{--<label for="bithumb[proxy][host]">--}}
                                             {{--Host--}}
                                         {{--</label>--}}
-                                        {{--<input type="text" id="binance[proxy][host]" name="binance[proxy][host]"--}}
+                                        {{--<input type="text" id="bithumb[proxy][host]" name="bithumb[proxy][host]"--}}
                                                {{--class="form-control input-sm"--}}
-                                               {{--value="{{isset($binanceConfig['proxy']['host']) ? $binanceConfig['proxy']['host'] : null}}">--}}
+                                               {{--value="{{isset($bithumbConfig['proxy']['host']) ? $bithumbConfig['proxy']['host'] : null}}">--}}
                                     {{--</li>--}}
                                     {{--<li class="mt-3">--}}
-                                        {{--<label for="binance[proxy][port]">--}}
+                                        {{--<label for="bithumb[proxy][port]">--}}
                                             {{--port--}}
                                         {{--</label>--}}
-                                        {{--<input type="text" id="binance[proxy][port]" name="binance[proxy][port]"--}}
+                                        {{--<input type="text" id="bithumb[proxy][port]" name="bithumb[proxy][port]"--}}
                                                {{--class="form-control input-sm"--}}
-                                               {{--value="{{isset($binanceConfig['proxy']['port']) ? $binanceConfig['proxy']['port'] : null}}">--}}
+                                               {{--value="{{isset($bithumbConfig['proxy']['port']) ? $bithumbConfig['proxy']['port'] : null}}">--}}
                                     {{--</li>--}}
                                     {{--<li class="mt-3">--}}
-                                        {{--<label for="binance[proxy][username]">--}}
+                                        {{--<label for="bithumb[proxy][username]">--}}
                                             {{--Username--}}
                                         {{--</label>--}}
-                                        {{--<input type="text" id="binance[proxy][username]" name="binance[proxy][username]"--}}
+                                        {{--<input type="text" id="bithumb[proxy][username]" name="bithumb[proxy][username]"--}}
                                                {{--class="form-control input-sm"--}}
-                                               {{--value="{{isset($binanceConfig['proxy']['username']) ? $binanceConfig['proxy']['username'] : null}}">--}}
+                                               {{--value="{{isset($bithumbConfig['proxy']['username']) ? $bithumbConfig['proxy']['username'] : null}}">--}}
                                     {{--</li>--}}
                                     {{--<li class="mt-3">--}}
-                                        {{--<label for="binance[proxy][password]">--}}
+                                        {{--<label for="bithumb[proxy][password]">--}}
                                             {{--Password--}}
                                         {{--</label>--}}
-                                        {{--<input type="text" id="binance[proxy][password]" name="binance[proxy][password]"--}}
+                                        {{--<input type="text" id="bithumb[proxy][password]" name="bithumb[proxy][password]"--}}
                                                {{--class="form-control input-sm"--}}
-                                               {{--value="{{isset($binanceConfig['proxy']['password']) ? $binanceConfig['proxy']['password'] : null}}">--}}
+                                               {{--value="{{isset($bithumbConfig['proxy']['password']) ? $bithumbConfig['proxy']['password'] : null}}">--}}
                                     {{--</li>--}}
                                 {{--</ul>--}}
                             {{--</div>--}}

@@ -1,6 +1,6 @@
 <div class="container-fluid">
     <h2 class="col-12">
-        Coin Market Cap coins for Binance
+        Coin Market Cap coins for Bithumb
     </h2>
 
     <div class="table-responsive">

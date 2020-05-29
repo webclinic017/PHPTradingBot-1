@@ -65,7 +65,7 @@
                     Total Money Used : {{$totalMoneyUsed}} USDT
                 </p>
                 <p>
-                    binance fee : {{$totalMoneyUsed - \App\TradeHelper::calcPercent($totalMoneyUsed,0.2)}} USDT
+                    Bithumb fee : {{$totalMoneyUsed - \App\BithumbTradeHelper::calcPercent($totalMoneyUsed,0.2)}} USDT
                 </p>
             </div>
         </div>

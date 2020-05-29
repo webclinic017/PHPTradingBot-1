@@ -18,7 +18,7 @@ class CreateSignalsTable extends Migration
             $table->string('market')->nullable();
             $table->float('lastprice',10,0)->nullable();
             $table->string('signalmode')->default('buy');
-            $table->string('exchange')->default('binance');
+            $table->string('exchange')->default('bithumb');
             $table->timestamp('time')->nullable();
             $table->float('basevolume',10,0)->nullable();
             $table->string('signalID')->nullable();

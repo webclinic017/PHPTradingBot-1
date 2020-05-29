@@ -3,10 +3,12 @@
 namespace App\Console\Commands;
 
 use App\BithumbTradeHelper;
+use App\Brick;
 use App\Modules;
 use App\Price;
 use App\Setting;
 use App\Ticker as TickerModel;
+use App\Wall;
 use Bg\Sdk\WS\WSResponse;
 use Bg\Sdk\WS\Streams\TickerStream;
 use Bg\Sdk\BithumbGlobalClient;
@@ -18,7 +20,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use \Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Artisan;
-class Ticker extends Command
+
+class Waller extends Command
 {
     /**
      * The name and signature of the console command.
@@ -54,8 +57,14 @@ class Ticker extends Command
     public function handle()
     {
         $bithumb = BithumbTradeHelper::getBithumb();
-        $tickerType = Setting::getValue('tickerType', 'wss');
-        $saveTicker = Setting::getValue('saveTicker', true);
+
+        //waller settings
+        $buyCovering = Setting::getValue('buyCovering');
+        $sellCovering = Setting::getValue('sellCovering');
+        $spread = Setting::getValue('spread');
+        $buyOrderAmount = Setting::getValue('buyOrderAmount');
+        $pair = Setting::getValue('pair');
+
         $enabledModules = Modules::getActiveModules();
         $eligibleModules = [];
         if ($enabledModules) {
@@ -66,6 +75,52 @@ class Ticker extends Command
                 }
             }
         }
+
+        $openBithumbOrdersArray = BithumbTradeHelper::getOpenOrdersId($bithumb);
+        $openWallerOrdersArray = Brick::getAllBricksOrderId($pair);        //create wall if not exist
+
+            if(count(array_diff($openWallerOrdersArray,$openBithumbOrdersArray))>0 || empty($openWallerOrdersArray)){
+            // recreate walls
+            BithumbTradeHelper::cancelOrders($openWallerOrdersArray);
+            Modules\Waller::createWalls();
+            //create bricks
+                //create first sell wall
+                $countSellWall = $sellCovering/$spread;
+                $currentPrice = BithumbTradeHelper::getPrice($pair);
+                $pricebrick = 0;
+                for ($i = 1; $i <= $countSellWall; $i++) {
+                    $brick = new Brick();
+                    //    protected $fillable = ['side', 'symbol', 'price', 'quantity', 'orderId', 'createTime','tradedNum'];
+                    $brick->side ='sell' ;
+                    $brick->symbol =$pair ;
+                    //get price first brick if price empty
+                    if($pricebrick == 0){
+                        $pricebrick =($currentPrice*$spread) + $currentPrice;
+                    }else{
+                        $pricebrick =($pricebrick*$spread) + $currentPrice;
+                    }
+                    $brick->price =$pricebrick ;
+
+                    // buy limit with price in $ sell in BIP get all quantity on balance
+
+                    $brick->quantity =$quantity ;
+
+
+                    echo $i;
+                }
+                $brickPrice = 0;
+
+
+
+
+        }
+
+        //check orders from rest api
+
+        // get limit orders Waller getBricks and try to get from rest api
+
+
+
         $bithumb->subscribe(new TickerStream(
             'BIP-USDT',
             function (WSClientInterface $client,TickerStream $stream ,WSResponse $response) use ($saveTicker,$eligibleModules,$tickerType) {

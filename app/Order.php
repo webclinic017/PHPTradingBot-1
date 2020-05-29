@@ -53,10 +53,14 @@ class Order extends Model
      * @return bool
      * @throws \Exception
      */
-    public static function buy($symbol, $quantity, $comment = null, $options = [])
+    public static function buy($symbol, $quantity, $comment = null, $options = [],$fakeBuy = false)
     {
         $orderDefaults = Setting::getValue('orderDefaults');
 
+        $side = 'BUY';
+        $type = 'MARKET';
+        $timeInForce = 'GTC';
+        $timestamp = round(microtime(true) * 1000);
         /*
          * Module Hook
          */
@@ -69,33 +73,180 @@ class Order extends Model
                 }
             }
         }
-        if ($anyFails) {
-            return false;
-        }
+        //From bithumb trader can BBuy?
 
-
-        $side = 'BUY';
-        $type = 'MARKET';
-        $timeInForce = 'GTC';
-        $timestamp = round(microtime(true) * 1000);
-
+        //
         $order = new Order();
         $order->symbol = $symbol;
-        $order->orderId = rand(1, 9999999);
-        $order->clientOrderId = rand(1, 999);
-        $order->transactTime = $timestamp;
-        $order->price = TradeHelper::getPrice($symbol);
-        $order->origQty = $quantity;
-        $order->executedQty = $quantity;
-        $order->cummulativeQuoteQty = $quantity;
-        $order->status = 'FILLED';
-        $order->timeInForce = $timeInForce;
-        $order->type = $type;
         $order->side = $side;
+        $order->origQty = $quantity;
+        $order->type = $type;
+        $order->timeInForce = $timeInForce;
+
         $order->takeProfit = isset($orderDefaults['tp']) ? $orderDefaults['tp'] : 2;
         $order->stopLoss = isset($orderDefaults['sl']) ? $orderDefaults['sl'] : 2;
         $order->trailingTakeProfit = isset($orderDefaults['ttp']) ? $orderDefaults['ttp'] : 1;
         $order->trailingStopLoss = isset($orderDefaults['tsl']) ? $orderDefaults['tsl'] : 0.5;
+
+        if(!$fakeBuy && !Setting::getValue('trainingMode')) {
+            // Bithumb trade helper make buy
+
+            $response = BithumbTradeHelper::placeOrder(strtolower($type),$order->symbol,strtolower($order->side),'-1',$order->origQty);
+            error_log('Placed order: '.print_r($response,1));
+            if($response == false){
+                $anyFails =true;
+            }else{
+                $order->orderId = rand(1, 9999999);
+                $order->clientOrderId = $response->orderId;
+
+
+            }
+            $response = BithumbTradeHelper::singleOrder($order->clientOrderId,$order->symbol);
+            error_log(print_r($response,1));
+            if($response){
+                $order->transactTime = $response->createTime;
+                $order->price = $response->avgPrice;
+                $order->executedQty = $response->quantity;
+                $order->cummulativeQuoteQty = $response->tradedNum;
+                $order->status = $response->status;
+            }else{
+                $order->transactTime = $timestamp;
+                $order->price = BithumbTradeHelper::getPrice($symbol);
+                $order->executedQty = $quantity;
+                $order->cummulativeQuoteQty = $quantity/$order->price;
+                $order->status = 'FILLED';
+            }
+
+        }
+        else{
+            $order->orderId = rand(1, 9999999);
+            $order->clientOrderId = rand(1, 999);
+            $order->transactTime = $timestamp;
+            $order->price = BithumbTradeHelper::getPrice($symbol);
+            $order->executedQty = $quantity;
+            $order->cummulativeQuoteQty = $quantity/$order->price;
+            $order->status = 'FILLED';
+        }
+
+
+        if ($anyFails) {
+            return false;
+        }
+
+        if (!empty($options)) {
+            if (isset($options['tp']))
+                $order->takeProfit = $options['tp'];
+            if (isset($options['sl']))
+                $order->stopLoss = $options['sl'];
+            if (isset($options['ttp']))
+                $order->trailingTakeProfit = $options['ttp'];
+            if (isset($options['tsl']))
+                $order->trailingStopLoss = $options['tsl'];
+            if (isset($options['signal_id']))
+                $order->signal_id = $options['signal_id'];
+        }
+        if ($comment) {
+            $order->comment = $comment;
+        }
+
+        $order->save();
+
+        /*
+         * Modules after hook
+         */
+        if ($activeModules) {
+            foreach ($activeModules as $module) {
+                $module->getFactory()->afterBuy();
+            }
+        }
+
+        return $order->id;
+    }
+    /**
+     * @param $symbol
+     * @param $quantity
+     * @param null $comment
+     * @param $options
+     * @return bool
+     * @throws \Exception
+     */
+    public static function buyLimit($symbol, $quantity, $comment = null, $options = [])
+    {
+        $orderDefaults = Setting::getValue('orderDefaults');
+
+        $side = 'BUY';
+        $type = 'LIMIT';
+        $timeInForce = 'GTC';
+        $timestamp = round(microtime(true) * 1000);
+        /*
+         * Module Hook
+         */
+        $activeModules = Modules::getActiveModules();
+        $anyFails = false;
+        if ($activeModules) {
+            foreach ($activeModules as $module) {
+                if ($module->getFactory()->beforeBuy() == false) {
+                    $anyFails = true;
+                }
+            }
+        }
+        //From bithumb trader can BBuy?
+
+        //
+        $order = new Order();
+        $order->symbol = $symbol;
+        $order->side = $side;
+        $order->origQty = $quantity;
+        $order->type = $type;
+        $order->timeInForce = $timeInForce;
+
+        $order->takeProfit = isset($orderDefaults['tp']) ? $orderDefaults['tp'] : 2;
+        $order->stopLoss = isset($orderDefaults['sl']) ? $orderDefaults['sl'] : 2;
+        $order->trailingTakeProfit = isset($orderDefaults['ttp']) ? $orderDefaults['ttp'] : 1;
+        $order->trailingStopLoss = isset($orderDefaults['tsl']) ? $orderDefaults['tsl'] : 0.5;
+        $order->price = BithumbTradeHelper::getPrice($symbol);
+
+        if(!Setting::getValue('trainingMode')) {
+            // Bithumb trade helper make buy
+
+            $response = BithumbTradeHelper::placeOrder(strtolower($type),$order->symbol,strtolower($order->side),$order->price,$order->origQty);
+            error_log('Placed order: '.print_r($response,1));
+            if($response == false){
+                $anyFails =true;
+            }else{
+                $order->orderId = rand(1, 9999999);
+                $order->clientOrderId = $response->orderId;
+
+
+            }
+            $response = BithumbTradeHelper::singleOrder($order->clientOrderId,$order->symbol);
+            error_log(print_r($response,1));
+            if($response){
+                $order->transactTime = $response->createTime;
+                $order->executedQty = $response->quantity;
+                $order->cummulativeQuoteQty = $response->tradedNum;
+                $order->status = $response->status;
+            }else{
+                $order->transactTime = $timestamp;
+                $order->executedQty = $quantity;
+                $order->cummulativeQuoteQty = $quantity/$order->price;
+                $order->status = 'success';
+            }
+
+        }
+        else{
+            $order->orderId = rand(1, 9999999);
+            $order->clientOrderId = rand(1, 999);
+            $order->transactTime = $timestamp;
+            $order->executedQty = $quantity;
+            $order->cummulativeQuoteQty = $quantity/$order->price;
+            $order->status = 'success';
+        }
+
+
+        if ($anyFails) {
+            return false;
+        }
 
         if (!empty($options)) {
             if (isset($options['tp']))
@@ -137,6 +288,10 @@ class Order extends Model
      */
     public static function sell($symbol, $quantity, $buyId, $comment = null)
     {
+        $side = 'SELL';
+        $type = 'MARKET';
+        $timeInForce = 'GTC';
+        $timestamp = round(microtime(true) * 1000);
         /*
          * Module before Hook
          */
@@ -149,35 +304,68 @@ class Order extends Model
                 }
             }
         }
+        $order = new Order();
+        $order->symbol = $symbol;
+        $order->side = $side;
+        $order->origQty = $quantity;
+        $order->type = $type;
+        $order->timeInForce = $timeInForce;
+        $order->buyId = $buyId;
+
+        $buyOrder = self::find($buyId);
+        $buyOrder->sell_date = now();
+
+        if(!Setting::getValue('trainingMode')) {
+            // Bithumb trade helper make buy
+//            error_log('Placed $sellQuantity: '.$buyOrder->origQty.' '.$buyOrder->price);
+
+//            $sellQuantity = $buyOrder->origQty/$buyOrder->price;
+            $response = BithumbTradeHelper::placeOrder(strtolower($type),$order->symbol,strtolower($order->side),'-1',$buyOrder->cummulativeQuoteQty);
+            error_log('Placed order: '.print_r($response,1));
+            if(empty($response)){
+                $anyFails = true;
+            }else{
+                $order->orderId = rand(1, 9999999);
+                $order->clientOrderId = $response->orderId;
+
+
+            }
+            $response = BithumbTradeHelper::singleOrder($order->clientOrderId,$order->symbol);
+            error_log(print_r($response,1));
+            if($response){
+                $order->transactTime = $response->createTime;
+                $order->price = $response->avgPrice;
+                $order->executedQty = $response->quantity;
+                $order->cummulativeQuoteQty = $response->tradedNum;
+                $order->status = $response->status;
+            }else{
+                $order->transactTime = $timestamp;
+                $order->price = BithumbTradeHelper::getPrice($symbol);
+                $order->executedQty = $quantity;
+                $order->cummulativeQuoteQty = $quantity/$order->price;
+                $order->status = 'success';
+            }
+
+        }
+        else{
+            $order->orderId = rand(1, 9999999);
+            $order->clientOrderId = rand(1, 999);
+            $order->transactTime = $timestamp;
+            $order->price = BithumbTradeHelper::getPrice($symbol);
+            $order->executedQty = $quantity;
+            $order->cummulativeQuoteQty = $quantity/$order->price;
+            $order->status = 'success';
+        }
+
         if ($anyFails) {
             return false;
         }
 
-        $side = 'SELL';
-        $type = 'MARKET';
-        $timeInForce = 'GTC';
-        $timestamp = round(microtime(true) * 1000);
-
-        $order = new Order();
-        $order->symbol = $symbol;
-        $order->orderId = rand(1, 9999999);
-        $order->clientOrderId = rand(1, 999);
-        $order->transactTime = $timestamp;
-        $order->price = TradeHelper::getPrice($symbol);;
-        $order->origQty = $quantity;
-        $order->executedQty = $quantity;
-        $order->cummulativeQuoteQty = $quantity;
-        $order->status = 'FILLED';
-        $order->timeInForce = $timeInForce;
-        $order->type = $type;
-        $order->side = $side;
-        $order->buyId = $buyId;
-        $buyOrder = self::find($buyId);
-        $buyOrder->sell_date = now();
 
         if ($comment) {
             $order->comment = $comment;
         }
+
 
         $order->save();
         $buyOrder->save();
@@ -221,7 +409,7 @@ class Order extends Model
 
     public function isOpen()
     {
-        if ($this->sellOrder == null && $this->side != 'SELL') {
+        if ($this->sellOrder == null && $this->side != 'SELL' && $this->type !='LIMIT') {
             return true;
         }
         return false;
@@ -238,16 +426,16 @@ class Order extends Model
             }
         } else {
             $buyPrice = $this->price;
-            $nowPrice = TradeHelper::getPrice($this->symbol);
+            $nowPrice = BithumbTradeHelper::getPrice($this->symbol);
         }
 
 
-        return TradeHelper::getPercent($buyPrice, $nowPrice);
+        return BithumbTradeHelper::getPercent($buyPrice, $nowPrice);
     }
 
     public function getCurrentPrice()
     {
-        return TradeHelper::getPrice($this->symbol);
+        return BithumbTradeHelper::getPrice($this->symbol);
     }
 
     public function inProfit()
@@ -293,6 +481,22 @@ class Order extends Model
 
     public function updateState()
     {
+        if($this->type == 'LIMIT'){
+            //send，pending，success，cancel
+            //if trade in pending update totals
+            if($this->status == 'pending'||$this->status == 'send'){
+                //update status and order
+                $response = BithumbTradeHelper::singleOrder($this->clientOrderId,$this->symbol);
+                error_log(print_r($response,1));
+                $this->transactTime = $response->createTime;
+                $this->executedQty = $response->quantity;
+                $this->cummulativeQuoteQty = $response->tradedNum;
+                $this->status = $response->status;
+            }if ($this->status != 'success'){
+                return false;
+            }
+        }
+
         /*
          * updates the maxFloated
          */

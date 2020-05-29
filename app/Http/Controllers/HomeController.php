@@ -13,7 +13,8 @@ use App\Modules;
 use App\Order;
 use App\Setting;
 use App\Signal;
-use App\TradeHelper;
+use App\BithumbTradeHelper;
+use App\Ticker;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -42,23 +43,23 @@ class HomeController extends Controller
 
     public function system()
     {
-        $binanceConfig = Setting::getValue('binance');
+        $bithumbConfig = Setting::getValue('bithumb');
 
         $lastTick = Cache::get('lastTick');
         $diffTicks = $lastTick ? Carbon::createFromTimestamp($lastTick)->diffInSeconds(now()) : null;
         return view('pages.system', [
             'diffTicks' => $diffTicks,
-            'binanceConfig' => $binanceConfig,
-            'tickerStatus' => TradeHelper::systemctl('ticker', 'staus'),
-            'ordersStatus' => TradeHelper::systemctl('orders', 'staus'),
-            'signalStatus' => TradeHelper::systemctl('signal', 'staus'),
+            'bithumbConfig' => $bithumbConfig,
+            'tickerStatus' => BithumbTradeHelper::systemctl('ticker', 'status'),
+            'ordersStatus' => BithumbTradeHelper::systemctl('orders', 'status'),
+            'signalStatus' => BithumbTradeHelper::systemctl('signal', 'status'),
         ]);
     }
 
     public function systemCtl($command, $service)
     {
         try {
-            $result = TradeHelper::systemctl($service, $command);
+            $result = BithumbTradeHelper::systemctl($service, $command);
         } catch (\Exception $exception) {
             $result = false;
         }
@@ -89,7 +90,7 @@ class HomeController extends Controller
             'allCount' => $count,
             'order' => $order,
             'show' => $showSymbol,
-            'symbol' => $id
+            'symbol' => $id,
         ]);
     }
 
@@ -162,7 +163,7 @@ class HomeController extends Controller
         return redirect()->back()->with('success', 'position modified.');
     }
 
-    public function newPosition($market, $quantity, $tp = null, $sl = null, $ttp = null, $tsl = null, Request $request)
+    public function newPosition($type,$market, $quantity, $tp = null, $sl = null, $ttp = null, $tsl = null, Request $request)
     {
         $options = [];
 
@@ -175,8 +176,12 @@ class HomeController extends Controller
         if ($tsl != '-')
             $options['tsl'] = $tsl;
 
-        $symbol = TradeHelper::market2symbol($market);
-        $buyId = Order::buy($symbol, $quantity, '', $options);
+        $symbol = BithumbTradeHelper::market2symbol($market);
+        if($type == 'BUY'){
+            $buyId = Order::buy($symbol, $quantity, '', $options);
+        }elseif ($type=='SELL'){
+            $buyId = Order::buy($symbol, $quantity, null, $options,1);
+        }
 
 
         return redirect(route('positions'))->with('success', 'position opened.');
@@ -222,15 +227,15 @@ class HomeController extends Controller
     public
     function saveSettings(Request $request)
     {
-        $binance = $request->get('binance');
+        $bithumb = $request->get('bithumb');
         if (!$request->get('proxyEnabled')) {
-            unset($binance['proxy']);
+            unset($bithumb['proxy']);
         }
         if ($request->has('orderDefaults')) {
             Setting::setValue('orderDefaults', $request->get('orderDefaults'));
         }
-        if ($binance['api'] != null || $binance['api'] != null) {
-            Setting::setValue('binance', $binance);
+        if ($bithumb['api'] != null || $bithumb['api'] != null) {
+            Setting::setValue('bithumb', $bithumb);
         }
 
         foreach ($request->all() as $key => $item) {

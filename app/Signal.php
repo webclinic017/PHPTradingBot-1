@@ -24,7 +24,7 @@ class Signal extends Model
         parent::boot();
         static::creating(function ($model) {
             if ($model->signalmode == 'buy') {
-                $symbol = TradeHelper::market2symbol($model->market);
+                $symbol = BithumbTradeHelper::market2symbol($model->market);
 
                 /*
                  * Module Signals received hook

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#/bin/bash bash
 
 if [ $1 = "daemon" ]; then
     echo "daemon"
@@ -19,10 +19,6 @@ if [ $1 = "daemon" ]; then
         php artisan daemon:orders &>/dev/null &
     fi
 
-#    PID=$(ps aux | grep 'ssh -D 1337' | grep -v grep | awk '{print $2}')
-#    if [[ -z $PID ]]; then
-#        ssh -D 1337 -f -C -q -N root@149.28.135.20
-#    fi
 
     done
 
@@ -51,12 +47,7 @@ if [ $1 = "status" ]; then
         echo "Orders Daemon Running"
     fi
 
-    PID=$(ps aux | grep 'ssh -D 1337' | grep -v grep | awk '{print $2}')
-    if [[ -z $PID ]]; then
-        echo "Tunnel Daemon Stopped"
-        else
-        echo "Tunnel Daemon Running"
-    fi
+
 
 fi
 

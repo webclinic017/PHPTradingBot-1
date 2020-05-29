@@ -3,7 +3,7 @@
         Open Positions ({{$allCount}})
     </div>
 
-    @if($open->isNotEmpty() && $status = \App\TradeHelper::systemctl('ticker','status'))
+    @if($open->isNotEmpty() && $status = \App\BithumbTradeHelper::systemctl('ticker','status'))
         <table class="table table-hover table-responsive col-12">
             <thead>
             <tr>

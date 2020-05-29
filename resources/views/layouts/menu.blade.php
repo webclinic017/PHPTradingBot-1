@@ -144,7 +144,7 @@
         });
     }
 
-    function openPosition() {
+    function openPosition(type) {
         var pair = document.getElementById("pair").value;
         var quantity = document.getElementById("quantity").value;
         var tp = document.getElementById("tp").value ? document.getElementById("tp").value : "-";
@@ -152,33 +152,140 @@
         var sl = document.getElementById("sl").value ? document.getElementById("sl").value : "-";
         var tsl = document.getElementById("tsl").value ? document.getElementById("tsl").value : "-";
 
-        var url = '/positions/new/' + pair + "/" + quantity + "/" + tp + "/" + sl + "/" + ttp + "/" + tsl;
+        var url = '/positions/new/'+type+'/' + pair + "/" + quantity + "/" + tp + "/" + sl + "/" + ttp + "/" + tsl;
         window.location.href = url;
     }
 
     function openTV(symbol) {
-        new TradingView.widget(
-            {
-                "autosize": true,
-                "symbol": "BINANCE:" + symbol,
-                "interval": "60",
-                "timezone": "Etc/UTC",
-                "theme": "Dark",
-                "style": "1",
-                "locale": "en",
-                "toolbar_bg": "#f1f3f6",
-                "enable_publishing": false,
-                "hide_side_toolbar": false,
-                "allow_symbol_change": false,
-                "details": true,
-                "studies": [
-                    "MACD@tv-basicstudies",
-                    "RSI@tv-basicstudies",
-                    "BB@tv-basicstudies"
-                ],
-                "container_id": "tradingview_b42a6"
-            }
-        );
+        document.getElementById("tradingview_b42a6").innerHTML = '';
+            var chart = LightweightCharts.createChart(document.getElementById("tradingview_b42a6"), {
+            layout: {
+                textColor: '#d1d4dc',
+                backgroundColor: '#000000',
+            },
+            priceScale: {
+                scaleMargins: {
+                    top: 0.30,
+                    bottom: 0.25,
+                },
+                borderVisible: true,
+            },
+            crosshair: {
+                vertLine: {
+                    width: 5,
+                    color: 'rgba(224, 227, 235, 0.1)',
+                    style: 0,
+                },
+                horzLine: {
+                    visible: true,
+                    labelVisible: true,
+                },
+            },
+            grid: {
+                vertLines: {
+                    color: 'rgba(42, 46, 57, 0)',
+                },
+                horzLines: {
+                    color: 'rgba(42, 46, 57, 0)',
+                },
+            },
+            localization: {
+                priceFormatter: function(price) {
+                    // add $ sign before price
+                    return  price;
+                },
+            },
+            timeScale: {
+                timeVisible: true,
+                secondsVisible: true,
+            },
+        });
+        var areaSeries = chart.addAreaSeries({
+            topColor: 'rgba(38, 198, 218, 0.56)',
+            bottomColor: 'rgba(38, 198, 218, 0.04)',
+            lineColor: 'rgba(38, 198, 218, 1)',
+            lineWidth: 2,
+            crossHairMarkerVisible: true,
+        });
+        var symbolHistory = [];
+        var currentArea = {
+            value:null,
+            time: -1,
+        };
+        axios.get('/tickers/'+symbol+'/history/-1').then(function (response) {
+            symbolHistory = response.data;
+            areaSeries.setData(symbolHistory);
+            currentArea = {
+                value:symbolHistory[0].value,
+                time: symbolHistory[0].time,
+            };
+            var inputlp = document.getElementById("lp");
+            inputlp.text = document.getElementById("lp");
+            setInterval(function() {
+                axios.get('/tickers/'+symbol+'/history/'+currentArea.time).then(function (response) {
+                    var lastHistory = response.data;
+                    console.log(lastHistory);
+
+                    lastHistory.forEach(function (item, index) {
+                        console.log(item);
+                        currentArea.time = item.time;
+                        currentArea.value = item.value;
+                        areaSeries.update(currentArea);
+                    });
+
+                }).then(function (error) {
+                    console.log(error);
+                });
+
+            }, 10000);
+        }).then(function (error) {
+            console.log(error);
+        });
+
+
+        document.getElementById("tradingview_b42a6").style.position = 'relative';
+
+        var legend = document.createElement('div');
+        legend.classList.add('legend');
+        document.getElementsByClassName("tradingSymbol")[0].appendChild(legend);
+
+        var firstRow = document.createElement('div');
+        firstRow.innerText = symbol+' Real Time';
+        firstRow.style.color = 'white';
+        legend.appendChild(firstRow);
+
+        function pad(n) {
+            var s = ('0' + n);
+            return s.substr(s.length - 2);
+        }
+
+        chart.subscribeCrosshairMove((param) => {
+            if (param.time) {
+            const price = param.seriesPrices.get(areaSeries);
+            firstRow.innerText = symbol+' Real Time' + '  ' + price.toFixed(6);
+        }
+    else {
+            firstRow.innerText = symbol+' Real Time';
+        }
+    });
+//        var chart = LightweightCharts.createChart(document.body, {
+//            crosshair: {
+//                mode: LightweightCharts.CrosshairMode.Normal,
+//            },
+//        });
+
+//        var candleSeries = chart.addCandlestickSeries();
+//        console.log(symbolHistory);
+//        var data = [
+//
+//            { time: '2018-10-23', open: 56.09, high: 57.47, low: 56.09, close: 57.21 }
+//        ];
+//
+//        candleSeries.setData(data);
+
+
+
+
         if (symbol) {
             $(".toggleFavorite").attr('data-symbol', symbol);
             $(".tradingSymbol").html(symbol);
@@ -203,8 +310,7 @@
 
     $(function () {
         updateMenuFavorites();
-
-        var availableTags = {!! json_encode(\App\TradeHelper::getSymbols()) !!};
+        window.availableTags = {!! json_encode(\App\BithumbTradeHelper::getSymbols()) !!};
         $("#pair").autocomplete({
             source: availableTags,
             autoFill: true,

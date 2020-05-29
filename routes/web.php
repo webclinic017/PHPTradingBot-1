@@ -1,5 +1,5 @@
 <?php
-
+use App\Ticker;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -37,7 +37,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/positions/{id?}/show', 'HomeController@positions')->name('showSymbol');
     Route::get('/positions/toggleTrailing/{id}', 'HomeController@toggleTrailing')->name('toggleTrailing');
     Route::get('/positions/close/{id}', 'HomeController@closePosition')->name('closePosition');
-    Route::get('/positions/new/{market}/{quantity}/{tp?}/{sl?}/{ttp?}/{tsl?}', 'HomeController@newPosition')->name('newPosition');
+    Route::get('/positions/new/{type}/{market}/{quantity}/{tp?}/{sl?}/{ttp?}/{tsl?}', 'HomeController@newPosition')->name('newPosition');
     Route::get('/positions/table/open', 'HomeController@openTable')->name('openTable');
     Route::post('/positions/edit/{id}', 'HomeController@editPosition')->name('editPosition');
     Route::post('/positions/save', 'HomeController@savePosition')->name('savePosition');
@@ -69,33 +69,81 @@ Route::group(['middleware' => 'auth'], function () {
 Route::get('/debug/css', function () {
     return view('css');
 });
+Route::get('/tickers/{symbol}/history/{fromTime}', function ($symbol,$fromTime) {
+    $tickerHistory = Ticker::getTickerHistory($symbol,$fromTime);
+    $tickerHistoryConverted = [];
+    $prevTickerPrice = 0;
+    foreach ($tickerHistory as $ticker){
+        if($prevTickerPrice ==0){
+            $prevTickerPrice = $ticker->close;
+        }
+        $tickerHistoryConverted[] = ['time'=>$ticker->created_at->getTimestamp(),'open'=>$prevTickerPrice,'high'=> $ticker->high, 'low'=> $ticker->low, 'close'=> $ticker->close , 'value'=>$ticker->close];
+        $prevTickerPrice = $ticker->open;
+    }
+    echo json_encode($tickerHistoryConverted);
+    return ;
+});
+Route::get('/tickers/{symbol}/price', function ($symbol) {
+    echo json_encode(\App\BithumbTradeHelper::getPrice($symbol));
+    return ;
+});
 
 Route::get('/debug', function () {
+//    $bithumb = \App\BithumbTradeHelper::getBithumb();
+//    if(!$bithumb->getResponse(new ConfigRequest())->isError()){
+//        foreach ($bithumb->response->getData()->spotConfig as $symbol) {
+//            $notions[$symbol->symbol] = $symbol;
+//        }
+//    }
 
-
-    $binance = \App\TradeHelper::getBinance();
-    $time1 = now();
+//    dd( $notions);
+//
+//    $bithumb = \App\BithumbTradeHelper::getBithumb();
+//
+//   echo '<pre> '.var_dump(\App\BithumbTradeHelper::getTick('BIP-USDT')).'</pre>';
+//    $bithumb->ticker(false, function ($api, $symbol, $tick) {
+//        try {
+//
+//            error_log('!!!!!!HEEEEEEEY!!!'.print_r($tick,1));
+////            $this->onTickEvent($tick,$eligibleModules);
+//        } catch (\Exception $exception) {
+//            error_log('!!!!!!HEEEEEEEY!!!'.$exception->getMessage());
+//
+//            $this->alert($exception->getMessage());
+//        }
+//
+//    });
+////    $request = new TickerRequest();
+////    $request->symbol = 'BIP-USDT';
+////    $price = $bithumb->execute($request);
+//    $time1 = now();
+//    $price = json_decode(\App\BithumbTradeHelper::getTick('BIP-USDT'));
 //    for ($i=0;$i<= 4;$i++){
 //        $_ = $binance->marketBuyTest('BTCUSDT',40);
 //        $_ = $binance->marketBuyTest('ETHUSDT',40);
 //        dump($_);
 //    }
+//
+//    $_ = $bithumb->marketBuyTest('BTCUSDT',40);
+//    $_ = $bithumb->marketBuyTest('ETHUSDT',40);
+//    $_ = $bithumb->marketBuyTest('BTCUSDT',40);
+//    $_ = $bithumb->marketBuyTest('ETHUSDT',40);
+//    $_ = $bithumb->marketBuyTest('BTCUSDT',40);
+//    $_ = $bithumb->marketBuyTest('ETHUSDT',40);
+//    $_ = $bithumb->marketBuyTest('BTCUSDT',40);
+//    $_ = $bithumb->marketBuyTest('ETHUSDT',40);
+//    $_ = $bithumb->marketBuyTest('BTCUSDT',40);
+//    $_ = $bithumb->marketBuyTest('ETHUSDT',40);
 
-    $_ = $binance->marketBuyTest('BTCUSDT',40);
-    $_ = $binance->marketBuyTest('ETHUSDT',40);
-    $_ = $binance->marketBuyTest('BTCUSDT',40);
-    $_ = $binance->marketBuyTest('ETHUSDT',40);
-    $_ = $binance->marketBuyTest('BTCUSDT',40);
-    $_ = $binance->marketBuyTest('ETHUSDT',40);
-    $_ = $binance->marketBuyTest('BTCUSDT',40);
-    $_ = $binance->marketBuyTest('ETHUSDT',40);
-    $_ = $binance->marketBuyTest('BTCUSDT',40);
-    $_ = $binance->marketBuyTest('ETHUSDT',40);
+//    $bithumb = \App\BithumbTradeHelper::getBithumb();
+//        dd( $bithumb);
 
+//print_r($bithumb->execute($request),1);
 
     $time2 = now();
 
     dd($time2->diffForHumans($time1));
+//dd(print_r($jsondata,1));
 
 
 //    dd(\App\TradeHelper::getPrice('CMTETH'));

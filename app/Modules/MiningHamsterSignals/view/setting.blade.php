@@ -35,8 +35,8 @@
                                         @if(in_array('poloniex',$config['exchange'] ?? [])) checked @endif>
                     </div>
                     <div class="col-3">
-                        Binance <input type="checkbox" name="exchange[binance]" value="1"
-                                       @if(in_array('binance',$config['exchange'] ?? [])) checked @endif>
+                        Bithumb <input type="checkbox" name="exchange[bithumb]" value="1"
+                                       @if(in_array('bithumb',$config['exchange'] ?? [])) checked @endif>
                     </div>
                     <div class="col-3">
                         Kucoin <input type="checkbox" name="exchange[kucoin]" value="1"

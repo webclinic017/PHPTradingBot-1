@@ -33,7 +33,7 @@
 
     <div class="recentPairs">
 
-        @if($pairs = \App\TradeHelper::recentlyTradedPairs(now()->subDay(1)))
+        @if($pairs = \App\BithumbTradeHelper::recentlyTradedPairs(now()->subDay(1)))
             @foreach($pairs as $pair => $pairData)
                 <div class="recentPair @if($pairData['avpl'] > 0) green @else red @endif">
                     <a href="{{route('showSymbol',$pairData['symbol'])}}" class="symbol">

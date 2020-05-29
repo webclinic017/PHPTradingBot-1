@@ -7,7 +7,7 @@
     </div>
 
     <div class="card-body">
-        @if($status = \App\TradeHelper::systemctl('ticker','status'))
+        @if($status = \App\BithumbTradeHelper::systemctl('ticker','status'))
 
             <div class="ui-widget">
                 <label for="pair">Symbol</label>
@@ -29,6 +29,9 @@
             <label for="tsl" class="mt-2">Trailing Stop Loss Percent</label>
             <input class="form-control col-12" style="background: #ff4a682b;" type="number" id="tsl" placeholder="TSL%"
                    @if(isset($order)) value="{{$order->trailingStopLoss}}" @endif>
+            <label for="lp" class="mt-2">Limit Price</label>
+            <input class="form-control col-12" style="background: #ff4a682b;" type="hidden" id="lp" placeholder="0.04"
+                   @if(isset($order)) value="{{$order->price}}" disabled @endif>
 
             <div class="mt-4"></div>
             @if(isset($order))
@@ -39,8 +42,12 @@
                     Cancel/New
                 </button>
             @else
-                <button onclick="openPosition()" class="col-12 btn btn-primary">
+                <button onclick="openPosition('BUY')" class="col-12 btn btn-primary btn-success">
                     Buy
+                </button>
+                <div class="mt-4"></div>
+                <button onclick="openPosition('SELL')" class="col-12 btn btn-primary btn-danger">
+                    Sell
                 </button>
                 @if($show)
                     <button onclick="cancelEdit()" class="col-12 btn btn-primary mt-1">

@@ -97,6 +97,7 @@ class TradeHelper
         return $binance;
     }
 
+
     public static function calcUSDT($amount, $symbol)
     {
         if ($price = self::getPrice($symbol . 'USDT')) {
@@ -205,7 +206,7 @@ class TradeHelper
             self::systemctl('ticker', $command);
             self::systemctl('orders', $command);
             self::systemctl('signal', $command);
-            sleep(2);
+            sleep(3);
             return true;
         }
 

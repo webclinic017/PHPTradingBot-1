@@ -11,7 +11,7 @@ namespace App\Modules;
 
 use App\Modules;
 use App\Order;
-use App\TradeHelper;
+use App\BithumbTradeHelper;
 use Carbon\Carbon;
 
 class Statistics extends Modules
@@ -55,7 +55,7 @@ class Statistics extends Modules
             foreach ($orders as $order) {
                 if ($order->getPL(true) > 0) {
                     // profit
-                    $totalProfit += TradeHelper::getRIO($order);
+                    $totalProfit += BithumbTradeHelper::getRIO($order);
                     $totalProfitPercent += $order->getPL(true);
                     $profitCount++;
                     if (!$highestProfit || $highestProfit->getPL(true) < $order->getPL(true)){
@@ -63,7 +63,7 @@ class Statistics extends Modules
                     }
                 } else {
                     // loss
-                    $totalLoss += TradeHelper::getRIO($order);
+                    $totalLoss += BithumbTradeHelper::getRIO($order);
                     $totalLossPercent -= $order->getPL(true);
                     $lossCount++;
                     if (!$highestLoss || $highestLoss->getPL(true) > $order->getPL(true)){
@@ -114,7 +114,7 @@ class Statistics extends Modules
             foreach ($orders as $order) {
                 if ($order->getPL(true) > 0) {
                     // profit
-                    $totalProfit += TradeHelper::getRIO($order);
+                    $totalProfit += BithumbTradeHelper::getRIO($order);
                     $totalProfitPercent += $order->getPL(true);
                     $profitCount++;
                     if (!$highestProfit || $highestProfit->getPL(true) < $order->getPL(true)){
@@ -122,7 +122,7 @@ class Statistics extends Modules
                     }
                 } else {
                     // loss
-                    $totalLoss += TradeHelper::getRIO($order);
+                    $totalLoss += BithumbTradeHelper::getRIO($order);
                     $totalLossPercent -= $order->getPL(true);
                     $lossCount++;
                     if (!$highestLoss || $highestLoss->getPL(true) > $order->getPL(true)){

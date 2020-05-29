@@ -11,3 +11,6 @@ npm-debug.log
 yarn-error.log
 .idea
 /database/database.sqlite3
+.phpstorm.meta.php
+php_errors.log
+_ide_helper.php

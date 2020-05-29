@@ -44,7 +44,7 @@ class CoinMarketCap extends Modules
 
     public function loadCoinMarketCap()
     {
-        $binance_pairs = \App\TradeHelper::getSymbols() ?? [];
+        $bithumb_pairs = \App\BithumbTradeHelper::getSymbols() ?? [];
 
         libxml_use_internal_errors(true);
 
@@ -70,7 +70,7 @@ class CoinMarketCap extends Modules
                 $tds = $tr->getElementsByTagName('td');
                 $coin = trim($tds->item(2)->nodeValue) . 'BTC';
                 for ($i = 0; $i < $tds->length; $i++) {
-                    if (in_array($coin, $binance_pairs) || $coin == 'BTCBTC') {
+                    if (in_array($coin, $bithumb_pairs) || $coin == 'BTCBTC') {
                         if ($i != 10) {
                             $row[$r][] = trim($tds->item($i)->nodeValue);
                         }
