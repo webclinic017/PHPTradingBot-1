@@ -14,8 +14,7 @@ To start using it need Docker download here https://www.docker.com/products/dock
 
 
 # Screenshots
-#### Signals Page
-![Alt text]( "Signals")
+
 #### Positions Page (Market Terminal)
 ![Alt text]( public/images/Market_Terminal.png?raw=true "Market Terminal")
 #### Order History Page
@@ -23,8 +22,11 @@ To start using it need Docker download here https://www.docker.com/products/dock
 #### System Settings Page
 ![Alt text]( public/images/system_pref.png?raw=true "System Settings")
 #### Modules Page
-![Alt text]( "Custom Modules")
-
+![Alt text]( public/images/Moduls_page.png?raw=true "Custom Modules")
+#### Favorits feature
+![Alt text]( public/images/favorits_feature.png?raw=true " Favorits")
+#### Favorits feature
+![Alt text]( public/images/favorits_feature.png?raw=true " Favorits")
 
 
 ### Installation
