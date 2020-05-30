@@ -16,10 +16,12 @@ To start using it need Docker download here https://www.docker.com/products/dock
 # Screenshots
 #### Signals Page
 ![Alt text]( "Signals")
+#### Positions Page (Market Terminal)
+![Alt text]( 'public/images/Market_Terminal.png?raw=true' "Market Terminal")
 #### Order History Page
 ![Alt text]( "Order History")
-#### System Settings Page'
-![Alt text]( 'https://github.com/MNTShop/PHPTradingBot/blob/master/public/images/system_pref.png?raw=true' "System Settings")
+#### System Settings Page
+![Alt text]( 'public/images/system_pref.png?raw=true' "System Settings")
 #### Modules Page
 ![Alt text]( "Custom Modules")
 
