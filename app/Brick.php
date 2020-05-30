@@ -30,6 +30,7 @@ class Brick extends Model
 //            return $tickerHistory;
 //    }
 
+
     public static function destroyBrickByOrderId($orderId){
         $order = self::where('orderId', $orderId)->delete();
     }

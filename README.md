@@ -19,11 +19,10 @@ To start using it need Docker download here https://www.docker.com/products/dock
 #### Order History Page
 ![Alt text]( "Order History")
 #### System Settings Page
-![Alt text]( "System Settings")
+![Alt text]( './public/images/system_pref.png' "System Settings")
 #### Modules Page
 ![Alt text]( "Custom Modules")
-#### Profitable Trade Cloner
-![Alt text]( "Profitable Trade Cloner")
+
 
 
 ### Installation
