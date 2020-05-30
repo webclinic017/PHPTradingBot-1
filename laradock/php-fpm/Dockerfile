@@ -943,7 +943,7 @@ ENV LC_ALL ${LOCALE}
 WORKDIR /var/www
 
 RUN apt-get update && apt-get install -y procps
-RUN chown www-data:www-data services.sh && chown -R www-data:www-data bash/
+#RUN chown www-data:www-data services.sh && chown -R www-data:www-data bash/
 RUN cp .env.example .env
 RUN php artisan key:generate
 RUN php artisan migrate

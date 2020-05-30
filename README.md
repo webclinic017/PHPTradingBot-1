@@ -43,6 +43,7 @@ Enter these commands to install
 
 ```
 
+Take a rest first install may get long time, 
 
 Verify the deployment by navigating to your server address in your preferred browser.
 
