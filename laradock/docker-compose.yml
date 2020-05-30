@@ -1,6 +1,4 @@
 version: '3'
-before_script:
-  - cp env-example .env
 
 networks:
   frontend:
