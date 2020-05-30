@@ -9,7 +9,7 @@ To start using it need Docker download here https://www.docker.com/products/dock
 # Features
 
   - Trade Signals API 
-  - Floating StopLoss/TakeProfit
+  - Floating StopLoss/TakeProfit (Trailing)
   - Bithumb Exchange support
 
 
@@ -46,8 +46,14 @@ Verify the deployment by navigating to your server address in your preferred bro
 ```sh
 http://localhost/
 ```
+
+```
 Login:admin@admin.com
 Password : superSecret
+```
+
+If you have any trouble with install, feel free ask here https://t.me/mntshop_official_group .
+
 ### Todos
 
  - More exchanges support
