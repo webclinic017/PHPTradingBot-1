@@ -89,6 +89,7 @@ Route::get('/tickers/{symbol}/price', function ($symbol) {
 });
 
 Route::get('/debug', function () {
+//    dd(\App\Brick::get('BIP-USDT'));
 //    $bithumb = \App\BithumbTradeHelper::getBithumb();
 //    if(!$bithumb->getResponse(new ConfigRequest())->isError()){
 //        foreach ($bithumb->response->getData()->spotConfig as $symbol) {

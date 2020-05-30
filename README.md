@@ -1,5 +1,6 @@
 # PHPTradingBot
 
+__Warning! Software under Active Development, use it your own risk!__
 
 PHPTradingBot is a modular platform written in php using Laravel to automatically trade on popuplar cryptocurrency exchanges
 Now support Bithumb! Thanks from minter community!

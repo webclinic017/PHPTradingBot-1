@@ -35,6 +35,13 @@ class Brick extends Model
         $order = self::where('orderId', $orderId)->delete();
     }
 
+    public static function getFirstGreen($symbol){
+        $order = self::where('symbol', $symbol)
+            ->where('side','buy')
+            ->where('')
+            ->get();
+    }
+
     public static function getAllBricksOrderId($symbol){
         $Bricks =  self::where('symbol',$symbol)->get();
         $orderIds = [];
@@ -46,16 +53,16 @@ class Brick extends Model
     }
 
     public static function getRedBricks($symbol){
-        return self::where('side', '=', 'sell')
+        return self::where('side', 'sell')
             ->where('symbol', $symbol)
             ->orderBy('side', 'desc')
             ->orderBy('price', 'desc')
             ->get();
     }
-    public static function getGreenBreaks($symbol){
-        return self::where('side', '=', 'buy')
+    public static function getGreenBricks($symbol){
+        return self::where('side', 'buy')
             ->where('symbol', $symbol)
-            ->orderBy('side', 'desc')
+            ->orderBy('price', 'desc')
             ->get();
     }
 //    public static function getTickerInitDataTV($symbol)
