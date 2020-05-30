@@ -9,6 +9,10 @@ use App\Price;
 use App\Setting;
 use App\Ticker as TickerModel;
 use App\Wall;
+use Bg\Sdk\Examples\REST\ServerTimeExample;
+use Bg\Sdk\REST\Request\Spot\CancelOrdersRequest;
+use Bg\Sdk\REST\Request\Spot\PlaceOrderRequest;
+use Bg\Sdk\WS\Streams\OrderStream;
 use Bg\Sdk\WS\WSResponse;
 use Bg\Sdk\WS\Streams\TickerStream;
 use Bg\Sdk\BithumbGlobalClient;
@@ -28,14 +32,14 @@ class Waller extends Command
      *
      * @var string
      */
-    protected $signature = 'daemon:ticker';
+    protected $signature = 'daemon:waller';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Listens to thicker web socket';
+    protected $description = 'Listens to ordersChange web socket';
 
     /**
      * Create a new command instance.
@@ -57,13 +61,7 @@ class Waller extends Command
     public function handle()
     {
         $bithumb = BithumbTradeHelper::getBithumb();
-
         //waller settings
-        $buyCovering = Setting::getValue('buyCovering');
-        $sellCovering = Setting::getValue('sellCovering');
-        $spread = Setting::getValue('spread');
-        $buyOrderAmount = Setting::getValue('buyOrderAmount');
-        $pair = Setting::getValue('pair');
 
         $enabledModules = Modules::getActiveModules();
         $eligibleModules = [];
@@ -75,40 +73,100 @@ class Waller extends Command
                 }
             }
         }
+//Rest$waller = new Modules\Waller();
+//        $config =
 
+        $waller = Modules::init('Waller');
+        $this->info(print_r(    $waller->config,1));
+        $buyCovering = $waller->getConfig('buyCovering');
+        $sellCovering = $waller->getConfig('sellCovering');
+        $spread = $waller->getConfig('spread');
+        $buyOrderAmount = $waller->getConfig('buyOrderAmount');
+        $pair = $waller->getConfig('pair');
+        $symbolConfig = BithumbTradeHelper::getNotions($pair);
         $openBithumbOrdersArray = BithumbTradeHelper::getOpenOrdersId($bithumb);
         $openWallerOrdersArray = Brick::getAllBricksOrderId($pair);        //create wall if not exist
+        $this->info(print_r(    $openWallerOrdersArray,1));
 
-            if(count(array_diff($openWallerOrdersArray,$openBithumbOrdersArray))>0 || empty($openWallerOrdersArray)){
+        if(count(array_diff($openWallerOrdersArray,$openBithumbOrdersArray))>0 || empty($openWallerOrdersArray)){
             // recreate walls
-            BithumbTradeHelper::cancelOrders($openWallerOrdersArray);
-            Modules\Waller::createWalls();
+                if(!empty($openWallerOrdersArray)){
+                   if( $bithumb->getResponse(new CancelOrdersRequest($openWallerOrdersArray,$pair))->isError()){
+                       $this->info('Daemon Waller CancelOrdersRequest error '.$bithumb->response->getCode().$bithumb->response->getMessage());
+                   }
+                   foreach ($openWallerOrdersArray as $orderId){
+                       Brick::destroyBrickByOrderId($orderId);
+                   }
+
+                }
+//            Modules\Waller::createWalls();
             //create bricks
                 //create first sell wall
                 $countSellWall = $sellCovering/$spread;
+                $countBuyWall = $buyCovering/$spread;
+                $spread = $spread/100;
                 $currentPrice = BithumbTradeHelper::getPrice($pair);
+                $timestamp = ServerTimeExample::getTimestamp();
                 $pricebrick = 0;
+                $bricks = [];
                 for ($i = 1; $i <= $countSellWall; $i++) {
                     $brick = new Brick();
+
                     //    protected $fillable = ['side', 'symbol', 'price', 'quantity', 'orderId', 'createTime','tradedNum'];
                     $brick->side ='sell' ;
+                    $brick->type ='limit' ;
                     $brick->symbol =$pair ;
                     //get price first brick if price empty
                     if($pricebrick == 0){
                         $pricebrick =($currentPrice*$spread) + $currentPrice;
                     }else{
-                        $pricebrick =($pricebrick*$spread) + $currentPrice;
+                        $pricebrick =($pricebrick*$spread) + $pricebrick;
                     }
-                    $brick->price =$pricebrick ;
+                    $brick->price = number_format($pricebrick, $symbolConfig->accuracy[0],'.','');
+                    $_quantity = $buyOrderAmount/$pricebrick;
+                    $brick->quantity = number_format($_quantity*$spread + $_quantity , $symbolConfig->accuracy[1],'.','');
+                    // new order and subscribe to
 
-                    // buy limit with price in $ sell in BIP get all quantity on balance
+                    if($bithumb->getResponse(new PlaceOrderRequest(
+                        $brick->symbol,$brick->type,$brick->side,$brick->price,$brick->quantity,$timestamp
+                    ))->isError()){
+                        $this->info('Daemon Waller error '.$bithumb->response->getCode().$bithumb->response->getMessage());
+                        $this->info(number_format($brick->quantity, $symbolConfig->accuracy[1],'.','').'Params : '.print_r(number_format($brick->price, $symbolConfig->accuracy[0],'.',''),1));
 
-                    $brick->quantity =$quantity ;
-
-
-                    echo $i;
+                    }else{
+                        $brick->orderId = $bithumb->response->getData()->orderId;
+                        $brick->save();
+                    }
                 }
-                $brickPrice = 0;
+
+                for ($i = 1; $i <= $countBuyWall; $i++) {
+                    $brick = new Brick();
+                    //    protected $fillable = ['side', 'symbol', 'price', 'quantity', 'orderId', 'createTime','tradedNum'];
+                    $brick->side ='buy' ;
+                    $brick->symbol =$pair ;
+                    $brick->type ='limit' ;
+                    //get price first brick if price empty
+                    if($pricebrick == 0){
+                        $pricebrick =$currentPrice - ($currentPrice*$spread) ;
+                    }else{
+                        $pricebrick = $pricebrick - ($pricebrick*$spread) ;
+                    }
+                    $brick->price = number_format($pricebrick , $symbolConfig->accuracy[0],'.','');
+                    $_quantity = $buyOrderAmount/$pricebrick;
+                    $brick->quantity = number_format($_quantity, $symbolConfig->accuracy[1],'.','') ;
+                    // new order and subscribe to
+                    if($bithumb->getResponse(new PlaceOrderRequest(
+                        $brick->symbol,$brick->type,$brick->side,$brick->price,$brick->quantity,$timestamp
+                    ))->isError()){
+                        $this->info('Daemon Waller error '.$bithumb->response->getCode().$bithumb->response->getMessage());
+                        $this->info('Daemon $brick->price '.$brick->price.' $brick->quantity'.$brick->quantity);
+                        $this->info('Daemon $symbolConfig->accuracy '.print_r($symbolConfig->accuracy,1).' $brick->quantity'.$brick->quantity);
+
+                    }else{
+                        $brick->orderId = $bithumb->response->getData()->orderId;
+                        $brick->save();
+                    }
+                }
 
 
 
@@ -121,9 +179,9 @@ class Waller extends Command
 
 
 
-        $bithumb->subscribe(new TickerStream(
+        $bithumb->subscribe(new OrderStream(
             'BIP-USDT',
-            function (WSClientInterface $client,TickerStream $stream ,WSResponse $response) use ($saveTicker,$eligibleModules,$tickerType) {
+            function (WSClientInterface $client,OrderStream $stream ,WSResponse $response) use ($bithumb ,$spread, $eligibleModules,$symbolConfig) {
                 if ($response->isError()) {
                     error_log(print_r($response,1));
                     $client->subscribe($stream); // reconnect
@@ -134,82 +192,62 @@ class Waller extends Command
                         //convert ticker data to store
                         if ($response === 'close') {
                             $this->info('Daemon ticker restart');
-                            return Artisan::call("daemon:ticker", []);
+                            return Artisan::call("daemon:waller", []);
                         }
-                        //
+                        //if limit check order in base and delete to create new
+                        if($response->getData()->type == 'limit'&&$response->getData()->status == 'fullDealt'){
+                            $newBrick = new Brick();
 
-                        $data =$response->getData();
-                        $newTicker = new TickerModel();
-                        $newTicker->eventType = $response->getTopic();
-                        $newTicker->eventTime = $response->getTimestamp();
-                        if(is_array($data)){
-                            foreach ($data as $tick){
-                                $newTicker->symbol = $tick->symbol;
-                                $newTicker->close = doubleval($tick->c);
-                                if ($tickerType == 'full') {
-                                    $newTicker->numTrades = intval($tick->v);
-                                    $newTicker->low = doubleval($tick->l);
-                                    $newTicker->high = doubleval($tick->h);
-                                    $newTicker->percentChange = floatval($tick->p);
-                                }
-                                if ($saveTicker) {
-                                    try {
-                                        //                        \App\Ticker::create($ticker);
-
-                                        $newTicker->save();
-//                                error_log(print_r($save));
-//                            $this->info('2|'.print_r($newTicker,1));
-
-                                        // Closures include ->first(), ->get(), ->pluck(), etc.
-                                    } catch (QueryException $ex) {
-                                        $this->info('New Ticker Not add to DB' . $ex->getMessage());
-
-//                            dd($ex->getMessage());
-                                        // Note any method of class PDOException can be called on $ex.
-                                    }
-
-                                }
-                                Cache::put($newTicker->symbol, $newTicker, now()->addHour(1));
-                                $this->onTickEvent($newTicker, $eligibleModules);
+                            if(Brick::destroyBrickByOrderId($response->getData()->oId)){
+                             if($response->getData()->side == 'buy'){
+                                 $newBrick->side = 'sell';
+                                 $newBrick->type ='limit' ;
+                                 $newBrick->symbol =$response->getData()->symbol ;
+                                 //get price first brick if price empty
+                                 $newBrick->price =number_format(($response->getData()->price*$spread) + $response->getData()->price, $symbolConfig->accuracy[0],'.','');
+                                 $_quantity = $response->getData()->quantity/$newBrick->price;
+                                 $newBrick->quantity = number_format($_quantity*$spread + $_quantity , $symbolConfig->accuracy[1],'.','') ;
+                             }elseif($response->getData()->side == 'sell'){
+                                 $newBrick->side = 'buy';
+                                 $newBrick->type ='limit' ;
+                                 $newBrick->symbol =$response->getData()->symbol ;
+                                 //get price first brick if price empty
+                                 $newBrick->price = number_format($response->getData()->price - ($response->getData()->price*$spread), $symbolConfig->accuracy[0],'.','') ;
+                                 $_quantity = $response->getData()->quantity;
+                                 $newBrick->quantity = number_format($_quantity*$spread - $_quantity, $symbolConfig->accuracy[1],'.','') ;
+                             }
+                         }
+                            //create antogonist order
+                            if($bithumb->getResponse(new PlaceOrderRequest(
+                                $newBrick->symbol,$newBrick->type,$newBrick->side,$newBrick->price,$newBrick->quantity,$response->getData()->time
+                            ))->isError()){
+                                $this->info('Daemon Waller error in subscribe '.$bithumb->response->getCode().$bithumb->response->getMessage());
+                            }else{
+                                $newBrick->orderId = $bithumb->response->getData()->orderId;
+                                $newBrick->save();
                             }
-                        }else{
-                            $newTicker->symbol = $data->symbol;
-                            $newTicker->close = doubleval($data->c);
-                            if ($tickerType == 'full') {
-                                $newTicker->numTrades = intval($data->v);
-                                $newTicker->low = doubleval($data->l);
-                                $newTicker->high = doubleval($data->h);
-                                $newTicker->percentChange = floatval($data->p);
-                            }
-                            if ($saveTicker) {
-                                try {
-                                    //                        \App\Ticker::create($ticker);
-
-                                    $newTicker->save();
-//                                error_log(print_r($save));
-//                            $this->info('2|'.print_r($newTicker,1));
-
-                                    // Closures include ->first(), ->get(), ->pluck(), etc.
-                                } catch (QueryException $ex) {
-                                    $this->info('New Ticker Not add to DB' . $ex->getMessage());
-
-//                            dd($ex->getMessage());
-                                    // Note any method of class PDOException can be called on $ex.
-                                }
-
-                            }
-                            Cache::put($newTicker->symbol, $newTicker, now()->addHour(1));
-                            $this->onTickEvent($newTicker, $eligibleModules);
                         }
-
-//                    $this->info('3|'.$newTicker->close);
+//                        oId	order id		String
+//price	order price	if type is "market", the value is "-1"	String
+//quantity	order quantity		String
+//side		buy or sell	String
+//symbol			String
+//type		limit or market	String
+//status		created，partDealt，fullDealt，canceled	String
+//dealPrice	Last executed price	if status = canceled, the value is "0"	String
+//dealQuantity	Last executed quantity	if status = canceled, the value is "0"	String
+//dealVolume	Last executed volume	if status = canceled, the value is "0"	String
+//fee		if status = canceled, the value is "0"	String
+//feeType		if status = canceled, the value is ""	String
+//cancelQuantity		if status is not "canceled", the value is "0"	String
+//time	order update time		Long
 
 
                     } catch (\Exception $exception) {
                         $this->alert($exception->getMessage());
                     }
 
-                    Cache::forever('lastTick', time());
+//                    Cache::forever('lastTick', time());
                 }
             }));
 

@@ -108,11 +108,12 @@ class BithumbTradeHelper
     }
 
 
+
     public static function getOpenOrdersId(BithumbClient $client,$symbol='BIP-USDT'){
         $page='';
         $count='100';
         if($client->getResponse(new OpenOrdersRequest($symbol,$page,$count))->isError()){
-            error_log('open Orders errors  : '.PHP_EOL.print_r($client->request,1));
+            error_log('open Orders errors  : '.PHP_EOL.print_r($client->response->getCode(),1).$client->response->getMessage());
             return false;
         }else{
             $orderIds = [];

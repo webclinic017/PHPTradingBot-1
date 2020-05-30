@@ -13,7 +13,7 @@ use Bg\Sdk\REST\RESTRequest;
 class CancelOrdersRequest extends RESTRequest
 {
 
-    protected $path = "/spot/cancelOrder";
+    protected $path = "/spot/cancelOrder/batch";
 
     protected $method = "POST";
 
@@ -31,8 +31,10 @@ class CancelOrdersRequest extends RESTRequest
     public function getParams():array
     {
         return [
-            "ids" => implode(',',$this->orderIds),
-            "symbol" => $this->symbol
+            "symbol" => $this->symbol,
+            "ids" => '',
+
+
         ];
     }
 

@@ -115,6 +115,38 @@ class WSClient extends AbstractClient implements WSClientInterface
         });
     }
 
+//
+    //authKey cmd：args is fixed,["apiKey","timestamp"(millisecond,type is string),"apiSignature"]
+    public function authKey(){
+//        ["apiKey","timestamp"(millisecond,type is string),"apiSignature"]
+//        request path="/message/realtime"
+//
+//signatureString=request path + current timestamp(millisecond) + apiKey
+//
+//apiSignature = sha256_HMAC(signatureString,secretKey)
+//        $sign =
+        $params = [
+            $this->apiKey,
+            $this->timestamp,
+            "apiSignature" => $this->genSignature()
+        ];
+        $endpoint = $this->baseStream.'?authKey='. http_build_query($params);;
+        \Ratchet\Client\connect($endpoint)->then(function ($ws) {
+            $ws->on('message', function ($data) use ($ws) {
+                $ws->close();
+            });
+            $ws->on('close', function ($code = null, $reason = null) use ($ws) {
+                // WPCS: XSS OK.
+                echo "ticker: WebSocket Connection closed! ({$code} - {$reason})" . PHP_EOL;
+
+                $ws->close();
+            });
+        }, function ($e) {
+            // WPCS: XSS OK.
+            echo "Auth key: Could not connect: {$e->getMessage()}" . PHP_EOL;
+        });
+    }
+
 
 
     /**
@@ -124,17 +156,39 @@ class WSClient extends AbstractClient implements WSClientInterface
      */
     private function generateSignatureHeader(WSStream $stream)
     {
+
         $paramsHeader=[];
+
         if ($stream->isNeedSign()) {
-            $signatureString = $this->baseStream . $stream->getPath() . $this->timestamp . $this->apiKey;
+
+            $signatureString = '/message/realtime'. (string)$this->timestamp . $this->apiKey;
+            $params = ["/message/realtime?subscribe=".$stream->getPath(),(string)$this->timestamp,$this->apiKey];
+
+            $str = http_build_query($params);
+
             $sign = hash_hmac("sha256", $signatureString, $this->secretKey, false);
             $paramsHeader = [
                 "apiKey" => $this->apiKey,
                 "apiTimestamp" => $this->timestamp,
                 "apiSignature" => $sign
             ];
+            $this->authKey();
+            return [];
         }
         return $paramsHeader;
+    }
+
+    private function genSignature()
+    {
+//        ksort($params);
+        $params = ["/message/realtime",(string)$this->timestamp,$this->apiKey];
+        $str = http_build_query($params);
+//        $request_path="/message/realtime";
+
+//$signatureString=$request_path . $this->timestamp. $this->apiKey;
+
+        $sign = hash_hmac("sha256", $str, $this->secretKey, false);
+        return $sign;
     }
 
 //    private function readStream($streamData): WSResponse

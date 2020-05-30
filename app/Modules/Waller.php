@@ -19,6 +19,7 @@ class Waller extends Modules
 {
     public static $description = 'Waller module create automatic walls on exchange pair';
 
+
     public function menus()
     {
         return [
@@ -29,6 +30,10 @@ class Waller extends Modules
             ],
         ];
     }
+
+//    public static function getConfig(){
+//        return $this->config;
+//    }
 
     public function WallerPage(Request $request)
     {

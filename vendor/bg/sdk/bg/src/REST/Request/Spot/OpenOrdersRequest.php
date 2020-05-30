@@ -33,7 +33,7 @@ class OpenOrdersRequest extends RESTRequest
     {
         return [
             "symbol" => $this->symbol,
-            "page" => $this->page,
+//            "page" => $this->page,
             "count" => $this->count,
         ];
     }

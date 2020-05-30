@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Cache;
 class Brick extends Model
 {
     protected $table = 'brick';
-    protected $fillable = ['side', 'symbol', 'price', 'quantity', 'orderId', 'createTime','tradedNum'];
+    protected $fillable = ['side', 'symbol', 'price', 'quantity', 'orderId', 'createTime','tradedNum','type'];
 
 //    public static function getTickerHistory($symbol,$fromTime=-1)
 //    {
@@ -30,12 +30,15 @@ class Brick extends Model
 //            return $tickerHistory;
 //    }
 
+    public static function destroyBrickByOrderId($orderId){
+        $order = self::where('orderId', $orderId)->delete();
+    }
 
     public static function getAllBricksOrderId($symbol){
         $Bricks =  self::where('symbol',$symbol)->get();
         $orderIds = [];
         foreach ($Bricks as $brick){
-            $orderIds =   $brick->orderId ;
+            $orderIds[] =   $brick->orderId ;
         }
         return $orderIds;
 
