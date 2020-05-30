@@ -40,10 +40,20 @@ Enter these commands to install
  cd PHPTradingBot/laradock
  cp env-example .env
  docker-compose up -d nginx mysql redis
-
+ 
+ docker-compose exec --user=laradock workspace bash
+ cp .env.example .env
+ php artisan key:generate
+ php artisan migrate
 ```
 
-Take a rest first install may get long time, 
+Take a rest first install may get long time, but in future you need only this command :
+```
+ cd PHPTradingBot/laradock
+ docker-compose up -d nginx mysql redis
+
+```
+and deploy not be a long.
 
 Verify the deployment by navigating to your server address in your preferred browser.
 
