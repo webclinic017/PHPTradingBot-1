@@ -18,8 +18,8 @@ To start using it need Docker download here https://www.docker.com/products/dock
 ![Alt text]( "Signals")
 #### Order History Page
 ![Alt text]( "Order History")
-#### System Settings Page
-![Alt text]( './public/images/system_pref.png' "System Settings")
+#### System Settings Page'
+![Alt text]( 'https://github.com/MNTShop/PHPTradingBot/blob/master/public/images/system_pref.png?raw=true' "System Settings")
 #### Modules Page
 ![Alt text]( "Custom Modules")
 
