@@ -11,6 +11,8 @@ To start using it need Docker download here https://www.docker.com/products/dock
   - Trade Signals API 
   - Floating StopLoss/TakeProfit (Trailing)
   - Bithumb Exchange support
+  - Training mode support
+  - BIP-USDT
 
 
 # Screenshots
