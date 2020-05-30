@@ -18,3 +18,9 @@ if [ $1 = "orders" ]; then
             php artisan daemon:orders &>/dev/null &
         fi
 fi
+if [ $1 = "waller" ]; then
+    PID=$(ps aux | grep 'daemon:waller' | grep -v grep | awk '{print $2}')
+        if [[ -z $PID ]]; then
+            php artisan daemon:waller &>/dev/null &
+        fi
+fi

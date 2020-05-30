@@ -24,3 +24,11 @@ if [ $1 = "orders" ]; then
             echo "1"
         fi
 fi
+if [ $1 = "waller" ]; then
+    PID=$(ps aux | grep 'daemon:waller' | grep -v grep | awk '{print $2}')
+        if [[ -z $PID ]]; then
+            echo "0"
+            else
+            echo "1"
+        fi
+fi

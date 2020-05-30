@@ -8,7 +8,7 @@
             <div class="col-6">
                 <h2>
                     Status :
-                    @if($wall)
+                    @if($statusWaller)
                         <span class="btn-outline-success">Working</span>
                     @else
                         <span class="btn-outline-danger">Stopped</span>
@@ -46,6 +46,20 @@
                 </label>
                 <input type="text" id="pair-wall" name="pair" class="form-control" value="{{$config['pair'] ?? ''}}">
             </div>
+                <div class="col-md-3">
+                    <h4>Services</h4>
+                    <a href="{{route('systemCtlWaller',['stop','waller'])}}"
+                       class="btn btn-outline-secondary fa fa-2x fa-stop text-danger"></a>
+                    {{--<button class="btn btn-outline-secondary ml-md-5 fa fa-2x fa-refresh text-info"></button>--}}
+                    <a href="{{route('systemCtlWaller',['start','waller'])}}"
+                       class="btn btn-outline-secondary ml-md-5 fa fa-2x fa-play text-success"></a>
+                    <div class="col-12 mt-3">
+                        <p>
+                            Waller Daemon
+                            : {!! $statusWaller ? '<span class="text-success">Running</span>' : '<span class="text-danger">Stopped</span>' !!}
+                        </p>
+                    </div>
+                </div>
             </div>
             {{--<div class="col-6">--}}
                 {{--<label class="mt-3">--}}

@@ -9,11 +9,13 @@
 namespace App\Modules;
 
 
+use App\Brick;
 use App\Modules;
 use App\Signal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Symfony\Component\Process\Process;
 
 class Waller extends Modules
 {
@@ -60,9 +62,19 @@ class Waller extends Modules
 
         } else {
             view()->addNamespace('Waller', app_path('Modules/Waller/view'));
+            // in progress
+            //
+            $lastCache = Cache::get('lastWallUpdate') - time();
+            if($lastCache > 10){
+                $statusWaller = false;
+            }else{
+                $statusWaller = true;
+
+            }
             return view('Waller::setting', [
                 'config' => $this->getConfig(),
-                'wall' => false
+                'wall' => false,
+                'statusWaller'=> $statusWaller
             ]);
         }
     }
@@ -143,4 +155,111 @@ class Waller extends Modules
 //        Cache::put('riskLevels', $riskLevelsAssoc, Carbon::now()->addMinutes(5));
 //        return $riskLevels;
 //    }
+    /**
+     * @param $command
+     * @param $service
+     * @param bool $background
+     * @return bool
+     * @throws \Exception
+     */
+    public static function systemctl($service, $command )
+    {
+//        $process = new Process(['/path/to/php', '--define', 'memory_limit=1024M', '/path/to/script.php']);
+//$process->setWorkingDirectory();
+//        if ($service == 'all') {
+//            self::systemctl('ticker', $command);
+//            self::systemctl('orders', $command);
+//            self::systemctl('signal', $command);
+//            sleep(2);
+//            return true;
+//        }
+
+
+//        $phpBinary = exec("which php");
+        $process_which_php = Process::fromShellCommandline("which php");
+        $process_which_php->run(null);
+        $phpBinary = $process_which_php->getOutput();
+        if (!$phpBinary) {
+            throw new \Exception('cannot find php binary');
+        }
+
+//        $cmd = 'cd ' . base_path() . '; ';
+//        error_log(print_r($cmd,1));
+        switch ($command) {
+            case 'status':
+
+                $process = new Process(['/bin/bash','./bash/service_status.sh',$service]);
+                $process->setWorkingDirectory(base_path());
+
+//                $process->setWorkingDirectory(base_path().'/bash');
+                $process->run();
+                // executes after the command finishes
+                if (!$process->isSuccessful()) {
+//                    error_log('Exception ./service_status.sh\''.$service.$process->getOutput());
+                    throw new ProcessFailedException($process);
+                }
+                if ($process->getOutput() != 0) {
+//                    error_log('TRUE ./service_status.sh\''.$service.$process->getOutput());
+
+                    return true;
+                }
+//                error_log('false ./service_status.sh\''.$service.$process->getOutput());
+                return false;
+            case 'restart':
+                $stop = self::systemctl($service, 'stop');
+                $start = self::systemctl($service, 'start');
+                if ($start && $stop) {
+//                    error_log('true ./service_restart.sh\'');
+                    return true;
+                }
+
+//                error_log('false ./service_restart.sh\'');
+
+                return false;
+            case 'start':
+//                $process = new Process(['php','artisan','daemon:'.$service,'&>/dev/null','&']);
+                $process = new Process(['/bin/bash','./bash/service_start.sh',$service]);
+                $process->setWorkingDirectory(base_path());
+                $process->run();
+                if (!$process->isSuccessful()) {
+                    error_log('false ./service_start.sh\''.$service.$process->getErrorOutput());
+                    throw new ProcessFailedException($process);
+                }
+//                error_log('here ./service_start.sh\''.$service.$process->getOutput());
+                return $process->isSuccessful();
+                break;
+            case 'stop':
+//                $cmd .= "kill $(ps aux | grep 'daemon:$service' | grep -v grep | awk '{print $2}')";
+                $process = new Process(['/bin/bash','./bash/service_stop.sh',$service]);
+                $process->setWorkingDirectory(base_path());
+                $process->run();
+                if (!$process->isSuccessful()) {
+//                                        error_log('false ./service_stop.sh\''.$service.$process->getOutput());
+
+                    throw new ProcessFailedException($process);
+                }
+//                                error_log('here ./service_stop.sh\''.$service.$process->getOutput());
+
+                return $process->isSuccessful();
+
+        }
+
+//        error_log(print_r($cmd,1));
+
+//        $process = Process::fromShellCommandline($cmd);
+//        if (!$process->isSuccessful()) {
+//            throw new ProcessFailedException($process);
+//        }
+
+//        error_log('END Process'.print_r($process->getOutput(),1));
+//        $process->wait();
+//        error_log($process->getOutput());
+
+        // child process
+//            $result = exec($cmd, $output, $return);
+        return self::systemctl($service, 'status');
+
+
+
+    }
 }

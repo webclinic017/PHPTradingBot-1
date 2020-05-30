@@ -30,6 +30,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/signals', 'HomeController@signals')->name('signals');
     Route::get('/system', 'HomeController@system')->name('system');
     Route::get('/system/ctl/{command}/{service}', 'HomeController@systemCtl')->name('systemCtl');
+    Route::get('/system/ctl/waller/{command}/{service}', 'HomeController@systemctlWaller')->name('systemCtlWaller');
     Route::get('/events', 'HomeController@events')->name('events');
     Route::get('/history/', 'HomeController@history')->name('history');
     Route::get('/history/{column?}/{sort?}', 'HomeController@history')->name('sortHistory');

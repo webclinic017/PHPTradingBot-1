@@ -18,6 +18,9 @@ fi
 if [ $1 = "orders" ]; then
     kill $(ps aux | grep 'daemon:orders' | grep -v grep | awk '{print $2}')
 fi
+if [ $1 = "waller" ]; then
+    kill $(ps aux | grep 'daemon:waller' | grep -v grep | awk '{print $2}')
+fi
 
 
 echo " stopped"

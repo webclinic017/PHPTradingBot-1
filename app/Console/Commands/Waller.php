@@ -364,7 +364,7 @@ class Waller extends Command
 
             }
 //
-////                    Cache::forever('lastTick', time());
+                    Cache::forever('lastWallUpdate', time());
 //                }
 //            }));
 

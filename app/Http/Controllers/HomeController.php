@@ -68,6 +68,18 @@ class HomeController extends Controller
         }
         return redirect()->back()->withErrors('failed to ' . $command . ' ' . $service . ' service.');
     }
+    public function systemCtlWaller($command, $service)
+    {
+        try {
+            $result = Modules\Waller::systemctl($service, $command);
+        } catch (\Exception $exception) {
+            $result = false;
+        }
+        if ($result) {
+            return redirect()->back()->with('success');
+        }
+        return redirect()->back()->withErrors('failed to ' . $command . ' ' . $service . ' service.');
+    }
 
     public function positions($id = null)
     {
