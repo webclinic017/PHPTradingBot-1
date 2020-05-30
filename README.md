@@ -19,7 +19,7 @@ To start using it need Docker download here https://www.docker.com/products/dock
 #### Positions Page (Market Terminal)
 ![Alt text]( public/images/Market_Terminal.png?raw=true "Market Terminal")
 #### Order History Page
-![Alt text]( "Order History")
+![Alt text](public/images/History_page.png?raw=true "Order History")
 #### System Settings Page
 ![Alt text]( public/images/system_pref.png?raw=true "System Settings")
 #### Modules Page
