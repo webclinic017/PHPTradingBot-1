@@ -38,12 +38,13 @@ Enter these commands to install
 
 ```sh
  git clone https://github.com/MNTShop/PHPTradingBot.git
- cd PHPTradingBot/laradock
+ cd PHPTradingBot
+ cp env.example .env
+ cd laradock
  cp env-example .env
  docker-compose up -d nginx mysql redis
  
  docker-compose exec --user=laradock workspace bash
- cp .env.example .env
  php artisan key:generate
  php artisan migrate
 ```
