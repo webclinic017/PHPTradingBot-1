@@ -103,7 +103,7 @@ class BithumbTradeHelper
      */
     public static function getBithumb(){
         $bithumbConfig = Setting::getValue('bithumb');
-        if(empty($bithumbConfig['api']) ||$bithumbConfig['secret'] ){
+        if(empty($bithumbConfig['api']) || empty($bithumbConfig['secret']) ){
             $bithumbConfig['api']='';
             $bithumbConfig['secret']='';
         }
@@ -117,6 +117,10 @@ class BithumbTradeHelper
         $page='';
         $count='100';
         if($client->getResponse(new OpenOrdersRequest($symbol,$page,$count))->isError()){
+
+            error_log('open Orders errors  : '.PHP_EOL.print_r($symbol));
+            error_log('open Orders errors  : '.PHP_EOL.print_r($page,1));
+            error_log('open Orders errors  : '.PHP_EOL.print_r($count,1));
             error_log('open Orders errors  : '.PHP_EOL.print_r($client->response->getCode(),1).$client->response->getMessage());
             return false;
         }else{
