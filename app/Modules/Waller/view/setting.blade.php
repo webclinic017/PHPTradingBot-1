@@ -61,6 +61,52 @@
                     </div>
                 </div>
             </div>
+            {{--<div class="row">--}}
+            {{--<div class="col-6">--}}
+                {{--<label for="buy-covering">--}}
+                    {{--Covering Buy wall in %:--}}
+                {{--</label>--}}
+                {{--<input type="text" id="buy-covering" name="buyCovering[]" class="form-control" value="{{$config['buyCovering'][1] ?? ''}}">--}}
+            {{--</div>--}}
+            {{--<div class="col-6">--}}
+                {{--<label for="sell-covering">--}}
+                    {{--Covering Sell wall in % :--}}
+                {{--</label>--}}
+                {{--<input type="text" id="sell-covering" name="sellCovering[]" class="form-control" value="{{$config['sellCovering'][1] ?? ''}}">--}}
+            {{--</div>--}}
+            {{--<div class="col-6">--}}
+                {{--<label for="spread">--}}
+                    {{--Spread :--}}
+                {{--</label>--}}
+                {{--<input type="text" id="spread" name="spread[]" class="form-control" value="{{$config['spread'][1] ?? ''}}">--}}
+            {{--</div>--}}
+            {{--<div class="col-6">--}}
+                {{--<label for="buy-order-amount">--}}
+                    {{--Buy order amount in base example USD if BIP-USD :--}}
+                {{--</label>--}}
+                {{--<input type="text" id="buy-order-amount" name="buyOrderAmount[]" class="form-control" value="{{$config['buyOrderAmount'][1] ?? ''}}">--}}
+            {{--</div>--}}
+            {{--<div class="col-6">--}}
+                {{--<label for="pair-wall">--}}
+                    {{--Pair :--}}
+                {{--</label>--}}
+                {{--<input type="text" id="pair-wall" name="pair[]" class="form-control" value="{{$config['pair'][1] ?? ''}}">--}}
+            {{--</div>--}}
+                {{--<div class="col-md-3">--}}
+                    {{--<h4>Services</h4>--}}
+                    {{--<a href="{{route('systemCtlWaller',['stop','waller'])}}"--}}
+                       {{--class="btn btn-outline-secondary fa fa-2x fa-stop text-danger"></a>--}}
+                    {{--<button class="btn btn-outline-secondary ml-md-5 fa fa-2x fa-refresh text-info"></button>--}}
+                    {{--<a href="{{route('systemCtlWaller',['start','waller'])}}"--}}
+                       {{--class="btn btn-outline-secondary ml-md-5 fa fa-2x fa-play text-success"></a>--}}
+                    {{--<div class="col-12 mt-3">--}}
+                        {{--<p>--}}
+                            {{--Waller Daemon--}}
+                            {{--: {!! $statusWaller ? '<span class="text-success">Running</span>' : '<span class="text-danger">Stopped</span>' !!}--}}
+                        {{--</p>--}}
+                    {{--</div>--}}
+                {{--</div>--}}
+            {{--</div>--}}
             {{--<div class="col-6">--}}
                 {{--<label class="mt-3">--}}
                     {{--Exchanges :--}}
