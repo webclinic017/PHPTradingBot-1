@@ -39,7 +39,7 @@ Enter these commands to install
 ```sh
  git clone https://github.com/MNTShop/PHPTradingBot.git
  cd PHPTradingBot
- cp env.example .env
+ cp .env.example .env
  cd laradock
  cp env-example .env
  docker-compose up -d nginx mysql redis
