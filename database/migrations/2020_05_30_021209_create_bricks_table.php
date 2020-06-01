@@ -13,9 +13,6 @@ class CreateBricksTable extends Migration
      */
     public function up()
     {
-        Schema::dropIfExists('bricks');
-        Schema::dropIfExists('brick');
-
         Schema::create('brick', function (Blueprint $table) {
             $table->increments('id');
             $table->string('symbol')->nullable();

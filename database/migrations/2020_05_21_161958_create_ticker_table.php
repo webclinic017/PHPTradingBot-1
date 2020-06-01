@@ -13,7 +13,6 @@ class CreateTickerTable extends Migration
      */
     public function up()
     {
-        Schema::dropIfExists('ticker');
         Schema::create('ticker', function (Blueprint $table) {
             $table->increments('id');
             $table->string('eventType')->nullable();
