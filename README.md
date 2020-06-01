@@ -47,6 +47,7 @@ Enter these commands to install
  docker-compose exec --user=laradock workspace bash
  php artisan key:generate
  php artisan migrate
+ php artisan db:seed --class=UserSeeder
 ```
 
 Take a rest first install may get long time, but in future you need only this command :
