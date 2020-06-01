@@ -103,6 +103,10 @@ class BithumbTradeHelper
      */
     public static function getBithumb(){
         $bithumbConfig = Setting::getValue('bithumb');
+        if(empty($bithumbConfig['api']) ||$bithumbConfig['secret'] ){
+            $bithumbConfig['api']='';
+            $bithumbConfig['secret']='';
+        }
         $bithumb = new BithumbClient($bithumbConfig['api'], $bithumbConfig['secret']);
         return $bithumb;
     }
