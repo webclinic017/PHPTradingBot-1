@@ -8,7 +8,7 @@
 
 namespace Bg\Sdk\REST\Examples;
 
-use Bg\Sdk\RESTApplication;
+use Bg\Sdk\Clients\RESTClient;
 use Bg\Sdk\Objects\Order;
 use Bg\Sdk\REST\Request\Spot\PlaceOrderRequest;
 
@@ -20,7 +20,7 @@ class PlaceOrderExample
         $apiKey = 'Your API Key';
         $secretKey = 'Your API SEcret';
         $msgNo = '1234567890';
-        $timestamp = ServerTimeExample::sendRequest();
+        $timestamp = ServerTimeExample::getTimestamp();
 
         $client = new RESTApplication($apiKey, $secretKey, $msgNo, $timestamp);
         if($client->getResponse(new PlaceOrderRequest(

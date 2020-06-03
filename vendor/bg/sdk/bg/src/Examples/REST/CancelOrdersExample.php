@@ -15,11 +15,11 @@ class CancelOrdersExample
 {
     public static function sendRequest()
     {
-        $timestamp =  (int)(ServerTimeExample::sendRequest()/100);
+        $timestamp =  (int)(ServerTimeExample::getTimestamp()/100);
         error_log($timestamp);
         $ordersIDSArr = ['74740189190115328','74740189190115330','74740189190115330'];
         $request = new CancelOrdersRequest($ordersIDSArr,'BIP-USDT');
-        $client = new RESTApplication();
+        $client = new  RESTClient();
         if($client->getResponse($request)->isError()){
             error_log('Code: '.$client->response->getCode().PHP_EOL.'Message: '.$client->response->getMessage());
             return false;

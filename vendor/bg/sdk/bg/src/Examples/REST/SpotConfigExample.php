@@ -8,7 +8,7 @@
 
 namespace Bg\Sdk\REST\Examples;
 
-use Bg\Sdk\RESTApplication;
+use Bg\Sdk\Clients\RESTClient;
 use Bg\Sdk\REST\Request\Spot\ConfigRequest;
 
 class SpotConfigExample
@@ -16,7 +16,7 @@ class SpotConfigExample
     public static function sendRequest()
     {
         $request = new ConfigRequest();
-        $client = new RESTApplication();
+        $client = new  RESTClient();
         if($client->getResponse($request)->isError()){
             error_log('Code: '.$client->response->getCode().PHP_EOL.'Message: '.$client->response->getMessage());
             return false;

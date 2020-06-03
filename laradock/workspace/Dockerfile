@@ -1352,3 +1352,7 @@ RUN apt-get clean && \
 
 # Set default work directory
 WORKDIR /var/www
+
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x docker-entrypoint.sh
+ENTRYPOINT ["/var/www/laradock/workspace/docker-entrypoint.sh"]

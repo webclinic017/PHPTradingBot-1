@@ -27,7 +27,7 @@ abstract class AbstractClient
      */
     protected $timestamp;
 
-    public function __construct(string $apiKey = '', string $secretKey = '', int $timestamp = 0)
+    public function __construct(string $apiKey = '', string $secretKey = '', $timestamp = 0)
     {
         $this->apiKey = $apiKey;
         $this->timestamp = $timestamp;

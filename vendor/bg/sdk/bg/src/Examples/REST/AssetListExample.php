@@ -8,26 +8,19 @@
 
 namespace Bg\Sdk\REST\Examples;
 
-use Bg\Sdk\RESTApplication;
+use Bg\Sdk\Clients\RESTClient;
 use Bg\Sdk\REST\Request\Spot\AssetListRequest;
 
 class AssetListExample
 {
-    public static function sendRequest()
+    public static function getAllAssets()
     {
-        $timeData = ServerTimeExample::sendRequest();
-        $timeData = json_decode($timeData,true);
-        $timestamp = $timeData["timestamp"];
-
-        $request = new AssetListRequest();
-        $request->coinType = "BTC";
-        $request->assetType = "spot";
-
-        $apiKey = 'Your API Key';
-        $secretKey = 'Your API SEcret';
-        $msgNo = 'msgNo';
-        $timestamp = $timeData["timestamp"];
-        $client = new RESTApplication($apiKey, $secretKey, $msgNo, $timestamp);
-        return $client->execute($request);
+        $client = new RESTClient();
+        if($client->getResponse(new AssetListRequest("ALL","spot"))->isError()){
+            error_log('Code: '.$client->response->getCode().PHP_EOL.'Message: '.$client->response->getMessage());
+            return false;
+        }else{
+            return $client->response->getData();
+        }
     }
 }

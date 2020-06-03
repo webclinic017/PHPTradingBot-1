@@ -52,7 +52,7 @@ class RESTClient extends AbstractClient implements RESTClientInterface
      * @param string $msgNo
      * @param int $timestamp
      */
-    public function __construct(string $apiKey = '', string $secretKey = '', int $timestamp = 0, string $msgNo = '')
+    public function __construct(string $apiKey = '', string $secretKey = '', $timestamp = 0, string $msgNo = '')
     {
         parent::__construct($apiKey,$secretKey,$timestamp);
         $this->msgNo = $msgNo;

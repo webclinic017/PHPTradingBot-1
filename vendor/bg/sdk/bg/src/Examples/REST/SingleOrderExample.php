@@ -8,14 +8,14 @@
 
 namespace Bg\Sdk\REST\Examples;
 
-use Bg\Sdk\RESTApplication;
+use Bg\Sdk\Clients\RESTClient;
 use Bg\Sdk\REST\Request\Spot\SingleOrderRequest;
 
 class SingleOrderExample
 {
     public static function sendRequest()
     {
-        $timestamp = ServerTimeExample::sendRequest();
+        $timestamp = ServerTimeExample::getTimestamp();
         $apiKey = 'Your API Key';
         $secretKey = 'Your API SEcret';
         $msgNo = '1234567890';
