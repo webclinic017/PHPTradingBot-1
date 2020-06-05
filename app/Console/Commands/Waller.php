@@ -188,12 +188,12 @@ class Waller extends Command
                                 if($greenBricks->isEmpty()){
                                     $this->info('Daemon Waller HERE red ' . print_r($otherWallBrick->price,1));
 
-                                    $this->createWall($pair,'buy',$otherWallBrick->price );
+                                    $this->createWall($pair,'sell',$otherWallBrick->price );
                                 }
                                 if($redBricks->isEmpty()){
                                     $this->info('Daemon Waller HERE green' . print_r($otherWallBrick->price,1) );
 
-                                    $this->createWall($pair,'sell',$otherWallBrick->price );
+                                    $this->createWall($pair,'buy',$otherWallBrick->price );
                                 }
 
 
