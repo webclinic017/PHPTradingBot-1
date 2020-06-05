@@ -24,7 +24,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/MNTShop/php-api-client.git"
+            "url": "https://github.com/MNTShop/bithumbGlobal-php-api-client.git"
         }
     ],
     "require-dev": {

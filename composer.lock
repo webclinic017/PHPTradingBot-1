@@ -131,12 +131,12 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/MNTShop/php-api-client.git",
+                "url": "https://github.com/MNTShop/bithumbGlobal-php-api-client.git",
                 "reference": "86dfe6dbd8c3103d71723b3f36f8c79008d05bfc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MNTShop/php-api-client/zipball/86dfe6dbd8c3103d71723b3f36f8c79008d05bfc",
+                "url": "https://api.github.com/repos/MNTShop/bithumbGlobal-php-api-client/zipball/86dfe6dbd8c3103d71723b3f36f8c79008d05bfc",
                 "reference": "86dfe6dbd8c3103d71723b3f36f8c79008d05bfc",
                 "shasum": ""
             },
@@ -147,7 +147,7 @@
                 }
             },
             "support": {
-                "source": "https://github.com/MNTShop/php-api-client/tree/master"
+                "source": "https://github.com/MNTShop/bithumbGlobal-php-api-client/tree/master"
             },
             "time": "2020-05-18T15:01:13+00:00"
         },
