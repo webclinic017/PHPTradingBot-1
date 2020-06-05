@@ -12,6 +12,7 @@ use Bg\Sdk\REST\Interfaces\RESTResponseInterface;
 
 class RESTResponse implements RESTResponseInterface
 {
+    protected $timestamp;
 
     /** Message
      * @var string
@@ -43,6 +44,9 @@ class RESTResponse implements RESTResponseInterface
             $this->message = $json->msg;
             $this->data = $json->data;
         }
+        if(isset($json->timestamp)){
+            $this->timestamp = $json->timestamp;
+        }
     }
 
     public function getData(){
@@ -70,4 +74,16 @@ class RESTResponse implements RESTResponseInterface
         }
         return false;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getTimestamp()
+    {
+        if(empty($this->timestamp)){
+            $this->timestamp = false;
+        }
+        return $this->timestamp;
+    }
+
 }
